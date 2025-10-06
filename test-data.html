@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Sample Trip Data</title>
+</head>
+<body>
+    <h1>Add Sample Trip Data for Testing</h1>
+    <p>Open your browser console and click the buttons below to add sample data:</p>
+    
+    <button onclick="addSampleData()">Add Sample Trip Data</button>
+    <button onclick="clearData()">Clear All Data</button>
+    <button onclick="showData()">Show Current Data</button>
+
+    <div id="output"></div>
+
+    <script>
+        function addSampleData() {
+            // Sample pending trips
+            const pendingTrips = [
+                {
+                    id: 'trip-001',
+                    customerId: 'customer-john',
+                    customerName: 'John Smith',
+                    customerEmail: 'john.smith@email.com',
+                    customerPhone: '+91 9876543210',
+                    from: 'Chennai',
+                    to: 'Bangalore',
+                    date: '2025-09-15',
+                    acType: 'AC',
+                    cost: 15000,
+                    requestedAt: '2025-08-25T10:30:00.000Z',
+                    status: 'pending'
+                },
+                {
+                    id: 'trip-002',
+                    customerId: 'customer-sarah',
+                    customerName: 'Sarah Johnson',
+                    customerEmail: 'sarah.j@email.com',
+                    customerPhone: '+91 9876543211',
+                    from: 'Mumbai',
+                    to: 'Pune',
+                    date: '2025-09-20',
+                    acType: 'Non-AC',
+                    cost: 8000,
+                    requestedAt: '2025-08-24T14:15:00.000Z',
+                    status: 'pending'
+                }
+            ];
+
+            // Sample approved trips
+            const approvedTrips = [
+                {
+                    id: 'trip-003',
+                    customerId: 'customer-mike',
+                    customerName: 'Mike Wilson',
+                    customerEmail: 'mike.w@email.com',
+                    customerPhone: '+91 9876543212',
+                    from: 'Delhi',
+                    to: 'Agra',
+                    date: '2025-09-25',
+                    acType: 'AC',
+                    cost: 12000,
+                    advancePaid: 5000,
+                    paymentStatus: 'paid',
+                    requestedAt: '2025-08-23T09:00:00.000Z',
+                    approvedAt: '2025-08-23T12:00:00.000Z',
+                    status: 'approved'
+                }
+            ];
+
+            // Sample completed trips
+            const completedTrips = [
+                {
+                    id: 'trip-004',
+                    customerId: 'customer-john',
+                    customerName: 'John Smith',
+                    customerEmail: 'john.smith@email.com',
+                    customerPhone: '+91 9876543210',
+                    from: 'Kochi',
+                    to: 'Munnar',
+                    date: '2025-08-20',
+                    acType: 'AC',
+                    cost: 18000,
+                    advancePaid: 5000,
+                    paymentStatus: 'paid',
+                    requestedAt: '2025-08-15T08:00:00.000Z',
+                    approvedAt: '2025-08-15T14:00:00.000Z',
+                    completedAt: '2025-08-20T18:00:00.000Z',
+                    status: 'completed'
+                },
+                {
+                    id: 'trip-005',
+                    customerId: 'customer-sarah',
+                    customerName: 'Sarah Johnson',
+                    customerEmail: 'sarah.j@email.com',
+                    customerPhone: '+91 9876543211',
+                    from: 'Goa',
+                    to: 'Mumbai',
+                    date: '2025-08-18',
+                    acType: 'AC',
+                    cost: 14000,
+                    advancePaid: 5000,
+                    paymentStatus: 'paid',
+                    requestedAt: '2025-08-10T16:30:00.000Z',
+                    approvedAt: '2025-08-11T10:00:00.000Z',
+                    completedAt: '2025-08-18T20:00:00.000Z',
+                    status: 'completed'
+                }
+            ];
+
+            // Store data in localStorage
+            localStorage.setItem('tripRequests', JSON.stringify(pendingTrips));
+            localStorage.setItem('approvedTrips', JSON.stringify(approvedTrips));
+            localStorage.setItem('completedTrips', JSON.stringify(completedTrips));
+
+            document.getElementById('output').innerHTML = `
+                <h2>✅ Sample data added successfully!</h2>
+                <p>Added:</p>
+                <ul>
+                    <li>${pendingTrips.length} pending trips</li>
+                    <li>${approvedTrips.length} approved trips</li>
+                    <li>${completedTrips.length} completed trips</li>
+                </ul>
+                <p><strong>Customers:</strong></p>
+                <ul>
+                    <li>John Smith (2 trips)</li>
+                    <li>Sarah Johnson (2 trips)</li>
+                    <li>Mike Wilson (1 trip)</li>
+                </ul>
+                <p>Now go to <a href="http://localhost:3000/login" target="_blank">http://localhost:3000/login</a> and login as owner to test!</p>
+            `;
+        }
+
+        function clearData() {
+            localStorage.removeItem('tripRequests');
+            localStorage.removeItem('approvedTrips');
+            localStorage.removeItem('completedTrips');
+            
+            document.getElementById('output').innerHTML = `
+                <h2>🗑️ All trip data cleared!</h2>
+            `;
+        }
+
+        function showData() {
+            const pending = JSON.parse(localStorage.getItem('tripRequests') || '[]');
+            const approved = JSON.parse(localStorage.getItem('approvedTrips') || '[]');
+            const completed = JSON.parse(localStorage.getItem('completedTrips') || '[]');
+            
+            document.getElementById('output').innerHTML = `
+                <h2>📊 Current Data:</h2>
+                <p><strong>Pending:</strong> ${pending.length} trips</p>
+                <p><strong>Approved:</strong> ${approved.length} trips</p>
+                <p><strong>Completed:</strong> ${completed.length} trips</p>
+                <details>
+                    <summary>View Raw Data</summary>
+                    <pre>${JSON.stringify({pending, approved, completed}, null, 2)}</pre>
+                </details>
+            `;
+        }
+    </script>
+</body>
+</html>
