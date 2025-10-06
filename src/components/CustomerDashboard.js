@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
 import { generateTripReceipt } from '../utils/generatePDF';
 import './CustomerDashboard.css';
 
@@ -35,12 +36,10 @@ function CustomerDashboard({ user, onLogout }) {
             setLoading(true);
             console.log('Loading trips for customer:', user._id || user.id);
             
-            const response = await fetch(`http://localhost:5001/api/trips/customer/${user._id || user.id}`);
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Received trip data:', data);
+            const data = await api.get(`/trips/customer/${user._id || user.id}`);
+            console.log('Received trip data:', data);
                 
-                if (data.success) {
+            if (data.success) {
                     
                     const pendingTripsData = data.pendingTrips || [];
                     const approvedTripsData = data.approvedTrips || [];
@@ -108,12 +107,8 @@ function CustomerDashboard({ user, onLogout }) {
                         approvedTrips: approvedTripsData.length,
                         completedTrips: completedTripsData.length
                     });
-                } else {
-                    console.log('No success flag in response, loading from localStorage');
-                    loadLocalTrips();
-                }
             } else {
-                console.log('Response not OK, status:', response.status);
+                console.log('No success flag in response, loading from localStorage');
                 loadLocalTrips();
             }
         } catch (error) {

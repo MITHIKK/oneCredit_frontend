@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
 import './UserProfile.css';
 
 function UserProfile({ user }) {
@@ -39,10 +40,8 @@ function UserProfile({ user }) {
         try {
             setLoading(true);
             
-            const response = await fetch(`http://localhost:5001/api/users/${user._id || user.id}/profile`);
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
+            const data = await api.get(`/users/${user._id || user.id}/profile`);
+            if (data.success) {
                     const userData = data.user;
                     setProfileData({
                         name: userData.fullName || userData.firstName + ' ' + userData.lastName || user.name,
@@ -62,7 +61,6 @@ function UserProfile({ user }) {
                         }));
                     }
                     return;
-                }
             }
         } catch (error) {
             console.error('Error loading profile from backend:', error);
@@ -91,10 +89,8 @@ function UserProfile({ user }) {
 
         try {
             
-            const response = await fetch(`http://localhost:5001/api/trips/customer/${user._id || user.id}`);
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
+            const data = await api.get(`/trips/customer/${user._id || user.id}`);
+            if (data.success) {
                     const pendingCount = data.pendingTrips.filter(t => t.status === 'draft').length;
                     const awaitingPaymentCount = data.pendingTrips.filter(t => t.status === 'planned').length;
                     const confirmedCount = data.approvedTrips.filter(t => t.status === 'booked').length;
@@ -110,7 +106,6 @@ function UserProfile({ user }) {
                     
                     setUserStats(stats);
                     return;
-                }
             }
         } catch (error) {
             console.error('Error fetching stats from backend:', error);

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { api } from '../services/api';
 import GoogleSignIn from './GoogleSignIn';
 import './Login.css';
 
@@ -18,33 +19,23 @@ function Login({ onLogin }) {
         setError('');
 
         try {
-            const response = await fetch('http://localhost:5001/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    username: loginData.username,
-                    password: loginData.password,
-                    role: loginData.role
-                })
-            });
+            const data = await api.post('/login', {
+                username: loginData.username,
+                password: loginData.password,
+                role: loginData.role
+            }, { auth: false });
 
-            const data = await response.json();
-
-            if (response.ok) {
+            if (data.success || data.user) {
                 const userData = {
                     ...data.user,
                     _id: data.user._id || data.user.id,
                     id: data.user._id || data.user.id
                 };
                 onLogin(userData);
-            } else {
-                setError(data.error || 'Login failed. Please try again.');
             }
         } catch (error) {
             console.error('Login error:', error);
-            setError('Network error. Please check if the server is running.');
+            setError(error.message || 'Network error. Please check if the server is running.');
         }
         
         setIsLoading(false);

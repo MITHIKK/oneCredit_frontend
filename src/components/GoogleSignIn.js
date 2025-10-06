@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { api } from '../services/api';
 import './GoogleSignIn.css';
 
 const GoogleSignIn = ({ onSuccess, onError }) => {
@@ -63,19 +64,10 @@ const GoogleSignIn = ({ onSuccess, onError }) => {
       };
 
       console.log('Sending to backend:', userData);
-      const backendResponse = await fetch('http://localhost:5001/api/auth/google', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token, userData }),
-      });
-
-      console.log('Backend response status:', backendResponse.status);
-      const result = await backendResponse.json();
+      const result = await api.post('/auth/google', { token, userData }, { auth: false });
+      
       console.log('Backend response:', result);
-
-      if (backendResponse.ok) {
+      if (result.user) {
         console.log('Google sign-in successful:', result.user);
         onSuccess(result.user);
       } else {

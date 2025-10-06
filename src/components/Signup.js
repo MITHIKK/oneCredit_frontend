@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { api } from '../services/api';
 import './Signup.css';
 
 function Signup({ onSignup }) {
@@ -64,23 +65,15 @@ function Signup({ onSignup }) {
 
         try {
             
-            const response = await fetch('http://localhost:5001/api/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: signupData.name,
-                    email: signupData.email,
-                    phone: signupData.phone,
-                    username: signupData.username,
-                    password: signupData.password
-                })
-            });
+            const data = await api.post('/signup', {
+                name: signupData.name,
+                email: signupData.email,
+                phone: signupData.phone,
+                username: signupData.username,
+                password: signupData.password
+            }, { auth: false });
 
-            const data = await response.json();
-
-            if (response.ok) {
+            if (data.success || data.user) {
                 
                 onSignup({
                     username: data.user.username,
@@ -90,19 +83,16 @@ function Signup({ onSignup }) {
                     phone: data.user.phone,
                     id: data.user._id
                 });
-            } else {
-                
-                if (data.error.includes('Email')) {
-                    setErrors({ email: data.error });
-                } else if (data.error.includes('Username')) {
-                    setErrors({ username: data.error });
-                } else {
-                    setErrors({ general: data.error });
-                }
             }
         } catch (error) {
             console.error('Signup error:', error);
-            setErrors({ general: 'Network error. Please check if the server is running.' });
+            if (error.message.includes('Email')) {
+                setErrors({ email: error.message });
+            } else if (error.message.includes('Username')) {
+                setErrors({ username: error.message });
+            } else {
+                setErrors({ general: error.message || 'Network error. Please check if the server is running.' });
+            }
         }
 
         setIsLoading(false);

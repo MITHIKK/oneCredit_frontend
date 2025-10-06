@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { api } from '../services/api';
 import { generateTripReceipt } from '../utils/generatePDF';
 import './Payment.css';
 
@@ -64,23 +65,15 @@ function Payment({ user }) {
             
             // Step 3: Process transaction
             setProcessingStep(2);
-            const response = await fetch('http://localhost:5001/api/payments/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    tripId: tripData._id || tripData.id,
-                    userId: user._id || user.id,
-                    amount: advanceAmount
-                })
+            const data = await api.post('/payments/create', {
+                tripId: tripData._id || tripData.id,
+                userId: user._id || user.id,
+                amount: advanceAmount
             });
             
             await new Promise(resolve => setTimeout(resolve, 800));
             
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
+            if (data.success) {
                     console.log('✅ Payment processed and trip confirmed:', data.payment);
                     
                     // Step 4: Generate receipt
@@ -123,7 +116,6 @@ function Payment({ user }) {
                     setPaymentStep('success');
                     setIsProcessing(false);
                     return;
-                }
             }
         } catch (error) {
             console.error('Backend payment error:', error);

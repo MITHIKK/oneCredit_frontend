@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { api } from '../services/api';
 import './OwnerDashboard.css';
 
 function OwnerDashboard({ user, onLogout }) {
@@ -26,10 +27,8 @@ function OwnerDashboard({ user, onLogout }) {
     const loadTripData = async () => {
         try {
             
-            const allTripsResponse = await fetch('http://localhost:5001/api/trips/owner/all');
-            if (allTripsResponse.ok) {
-                const data = await allTripsResponse.json();
-                if (data.success) {
+            const data = await api.get('/trips/owner/all');
+            if (data.success) {
                     
                     const pendingTrips = data.pendingTrips || [];
                     const approvedUnpaidTrips = data.approvedTrips || [];
@@ -55,7 +54,6 @@ function OwnerDashboard({ user, onLogout }) {
                         totalRevenue
                     });
                     return;
-                }
             }
         } catch (error) {
             console.error('Error loading from backend:', error);
@@ -92,20 +90,12 @@ function OwnerDashboard({ user, onLogout }) {
     const approveTrip = async (tripId) => {
         try {
             
-            const response = await fetch(`http://localhost:5001/api/trips/${tripId}/approve`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
+            const data = await api.put(`/trips/${tripId}/approve`, {});
             
-            if (response.ok) {
-                const data = await response.json();
-                if (data.success) {
-                    alert('Trip approved successfully! Customer will be notified to make advance payment.');
-                    loadTripData();
-                    return;
-                }
+            if (data.success) {
+                alert('Trip approved successfully! Customer will be notified to make advance payment.');
+                loadTripData();
+                return;
             }
         } catch (error) {
             console.error('Error approving trip via backend:', error);

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../services/api';
 import './BookingForm.css';
 
 function BookingForm({ user }) {
@@ -77,31 +78,22 @@ function BookingForm({ user }) {
             };
             
             try {
-                const response = await fetch('http://localhost:5001/api/trips/book', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(tripRequest)
-                });
+                const data = await api.post('/trips/book', tripRequest);
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success) {
-                        alert('🎉 Booking request submitted successfully! \n\nYour request has been sent to the owner for approval. You will be notified once it\'s approved.');
-                        setShowConfirmation(false);
-                        
-                        setBookingData({
-                            fromDestination: '',
-                            toDestination: '',
-                            date: '',
-                            isAC: false,
-                            timeSlot: ''
-                        });
-                        
-                        navigate('/dashboard');
-                        return;
-                    }
+                if (data.success) {
+                    alert('🎉 Booking request submitted successfully! \n\nYour request has been sent to the owner for approval. You will be notified once it\'s approved.');
+                    setShowConfirmation(false);
+                    
+                    setBookingData({
+                        fromDestination: '',
+                        toDestination: '',
+                        date: '',
+                        isAC: false,
+                        timeSlot: ''
+                    });
+                    
+                    navigate('/dashboard');
+                    return;
                 }
             } catch (backendError) {
                 console.error('Backend booking error:', backendError);
