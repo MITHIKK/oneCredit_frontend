@@ -486,9 +486,23 @@ app.post('/api/trips/book', async (req, res) => {
     
     let user = null;
     if (userId && userId !== 'owner-001') {
-      user = await User.findById(userId);
+      try {
+        // Try to find by ObjectId first
+        user = await User.findById(userId);
+      } catch (err) {
+        // If ObjectId fails, try to find by username or email
+        user = await User.findOne({
+          $or: [
+            { username: userId },
+            { email: userId }
+          ]
+        });
+      }
+      
       if (!user) {
         console.log('⚠️ User not found, creating trip with provided data');
+      } else {
+        console.log('✅ User found:', user.name || user.username);
       }
     }
     
