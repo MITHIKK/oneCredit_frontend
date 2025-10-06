@@ -69,8 +69,8 @@ const User = mongoose.model('User', UserSchema);
 const TripSchema = new mongoose.Schema({
   customerId: { type: String, required: true },
   customerName: { type: String, required: true },
-  customerEmail: { type: String, required: true },
-  customerPhone: { type: String, required: true },
+  customerEmail: { type: String },
+  customerPhone: { type: String },
   from: { type: String, required: true },
   to: { type: String, required: true },
   date: { type: Date, required: true },
@@ -84,7 +84,9 @@ const TripSchema = new mongoose.Schema({
   paymentDate: { type: Date },
   requestedAt: { type: Date, default: Date.now },
   approvedAt: { type: Date },
-  confirmedAt: { type: Date }
+  confirmedAt: { type: Date },
+  rejectedAt: { type: Date },
+  rejectionReason: { type: String }
 });
 
 const Trip = mongoose.model('Trip', TripSchema);
@@ -132,19 +134,27 @@ app.post('/api/signup', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password, role } = req.body;
+    console.log('🔐 Login request received:', { username, role, password: password ? '[PROVIDED]' : '[MISSING]' });
     
     if (role === 'owner') {
+      console.log('👨‍💼 Owner login attempt:', { username, password: password ? '[PROVIDED]' : '[MISSING]' });
       if (username === 'srimuruganbusowner' && password === 'muruganbus') {
+        console.log('✅ Owner credentials valid, logging in...');
+        const userData = {
+          username,
+          role: 'owner',
+          name: 'Sri Murugan Bus Owner',
+          id: 'owner-001',
+          _id: 'owner-001'
+        };
         res.json({
           message: 'Login successful',
-          user: {
-            username,
-            role: 'owner',
-            name: 'Sri Murugan Bus Owner',
-            id: 'owner-001'
-          }
+          success: true,
+          user: userData
         });
+        console.log('✅ Owner login response sent:', userData);
       } else {
+        console.log('❌ Invalid owner credentials provided');
         res.status(401).json({ error: 'Invalid owner credentials' });
       }
     } else {
@@ -378,6 +388,44 @@ app.put('/api/trips/:tripId/approve', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error approving trip:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+app.put('/api/trips/:tripId/reject', async (req, res) => {
+  try {
+    const { tripId } = req.params;
+    const { reason } = req.body;
+    console.log('❌ Rejecting trip:', tripId, 'Reason:', reason);
+    
+    const trip = await Trip.findByIdAndUpdate(
+      tripId,
+      { 
+        status: 'cancelled',
+        rejectedAt: new Date(),
+        rejectionReason: reason || 'No reason provided'
+      },
+      { new: true }
+    );
+    
+    if (!trip) {
+      return res.status(404).json({
+        success: false,
+        error: 'Trip not found'
+      });
+    }
+    
+    console.log('✅ Trip rejected successfully:', trip._id);
+    res.json({
+      success: true,
+      message: 'Trip rejected successfully',
+      trip
+    });
+  } catch (error) {
+    console.error('❌ Error rejecting trip:', error);
     res.status(500).json({
       success: false,
       error: error.message

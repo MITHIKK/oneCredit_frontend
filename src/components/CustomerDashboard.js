@@ -13,6 +13,7 @@ function CustomerDashboard({ user, onLogout }) {
     const [notifications, setNotifications] = useState([]);
     const [activeTab, setActiveTab] = useState('trips');
     const [loading, setLoading] = useState(true);
+    const [isLoadingTrips, setIsLoadingTrips] = useState(false);
     const [stats, setStats] = useState({
         totalTrips: 0,
         pendingTrips: 0,
@@ -21,18 +22,29 @@ function CustomerDashboard({ user, onLogout }) {
     });
 
     useEffect(() => {
-        loadMyTrips();
-        loadNotifications();
-        
-        const interval = setInterval(() => {
+        const userId = user?._id || user?.id;
+        if (userId) {
             loadMyTrips();
-        }, 5000);
-        
-        return () => clearInterval(interval);
-    }, [user]);
+            loadNotifications();
+            
+            const interval = setInterval(() => {
+                if (!isLoadingTrips) {
+                    loadMyTrips();
+                }
+            }, 10000); // Increased to 10 seconds to reduce API calls
+            
+            return () => clearInterval(interval);
+        }
+    }, [user?._id || user?.id]); // Single stable dependency
 
     const loadMyTrips = async () => {
+        if (isLoadingTrips) {
+            console.log('Already loading trips, skipping...');
+            return;
+        }
+        
         try {
+            setIsLoadingTrips(true);
             setLoading(true);
             console.log('Loading trips for customer:', user._id || user.id);
             
@@ -117,6 +129,7 @@ function CustomerDashboard({ user, onLogout }) {
             loadLocalTrips();
         } finally {
             setLoading(false);
+            setIsLoadingTrips(false);
         }
     };
     
