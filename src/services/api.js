@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://onecredit-backend-8p7u.onrender.com/api';
 
 const getAuthToken = () => {
   return localStorage.getItem('authToken');

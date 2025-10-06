@@ -129,12 +129,24 @@ function OwnerDashboard({ user, onLogout }) {
         }
     };
 
-    const rejectTrip = (tripId, reason = 'Not available for selected dates') => {
+    const rejectTrip = async (tripId, reason = 'Not available for selected dates') => {
+        try {
+            const data = await api.put(`/trips/${tripId}/reject`, { reason });
+            
+            if (data.success) {
+                alert(`Trip rejected successfully! Reason: ${reason}`);
+                loadTripData();
+                return;
+            }
+        } catch (error) {
+            console.error('Error rejecting trip via backend:', error);
+        }
+        
+        // Fallback to localStorage if API fails
         const tripRequests = JSON.parse(localStorage.getItem('tripRequests') || '[]');
         const tripToReject = tripRequests.find(trip => trip.id === tripId);
         
         if (tripToReject) {
-            
             const updatedTripRequests = tripRequests.filter(trip => trip.id !== tripId);
             localStorage.setItem('tripRequests', JSON.stringify(updatedTripRequests));
             
@@ -146,6 +158,7 @@ function OwnerDashboard({ user, onLogout }) {
             });
             
             loadTripData();
+            alert(`Trip rejected successfully! Reason: ${reason}`);
         }
     };
 
