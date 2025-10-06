@@ -7,7 +7,15 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'https://accounts.google.com'],
+  origin: [
+    'http://localhost:3000', 
+    'http://localhost:3001', 
+    'http://127.0.0.1:3000', 
+    'http://127.0.0.1:3001', 
+    'https://accounts.google.com',
+    'https://onecredit-frontend.onrender.com',
+    'https://onecredit-backend-8p7u.onrender.com'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -20,8 +28,8 @@ app.use((req, res, next) => {
   next();
 });
 
-const DB_NAME = process.env.DB_NAME || 'tripapp_db';
-const MONGODB_URI = `mongodb://localhost:27017/${DB_NAME}`;
+const DB_NAME = process.env.DB_NAME || 'oneCredit';
+const MONGODB_URI = process.env.MONGODB_URI || `mongodb+srv://mkmithik2005:Mithik2005@cluster1.kdkc6ne.mongodb.net/oneCredit?retryWrites=true&w=majority&appName=Cluster1`;
 console.log(`🔗 Connecting to database: ${DB_NAME}`);
 
 mongoose.connect(MONGODB_URI, {
