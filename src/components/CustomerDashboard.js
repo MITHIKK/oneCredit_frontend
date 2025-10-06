@@ -7,9 +7,6 @@ import './CustomerDashboard.css';
 function CustomerDashboard({ user, onLogout }) {
     const navigate = useNavigate();
     const [myTrips, setMyTrips] = useState([]);
-    const [pendingTrips, setPendingTrips] = useState([]);
-    const [approvedTrips, setApprovedTrips] = useState([]);
-    const [completedTrips, setCompletedTrips] = useState([]);
     const [notifications, setNotifications] = useState([]);
     const [activeTab, setActiveTab] = useState('trips');
     const [loading, setLoading] = useState(true);
@@ -35,6 +32,7 @@ function CustomerDashboard({ user, onLogout }) {
             
             return () => clearInterval(interval);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?._id || user?.id]); // Single stable dependency
 
     const loadMyTrips = async () => {
@@ -64,9 +62,7 @@ function CustomerDashboard({ user, onLogout }) {
                     console.log('  Confirmed:', confirmedTripsData.length);
                     console.log('  Completed:', completedTripsData.length);
                     
-                    setPendingTrips(pendingTripsData);
-                    setApprovedTrips(approvedTripsData);
-                    setCompletedTrips(completedTripsData);
+                    // State data processed directly into allTrips
                     
                     const mapTrip = (trip) => {
                         
